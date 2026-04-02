@@ -1,0 +1,18 @@
+# Nepal TechGuard - Apache config for XAMPP
+# SPA routing + API + Authorization header
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /Nepal-TechGuard/
+  # Pass Authorization header to PHP (required for admin API)
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+  # API and backend - serve PHP directly
+  RewriteCond %{REQUEST_URI} ^/Nepal-TechGuard/backend/
+  RewriteRule ^ - [L]
+  # Existing files (assets, images)
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+  # SPA fallback - serve index.html for all other routes
+  RewriteRule ^ index.html [L]
+</IfModule>

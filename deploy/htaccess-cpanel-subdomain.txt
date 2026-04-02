@@ -1,0 +1,20 @@
+# Nepal TechGuard - cPanel subdomain (e.g. store.yourdomain.com)
+# Copy this file to your subdomain document root and rename to .htaccess
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Pass Authorization header to PHP (needed for admin API)
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+  # Existing files and folders (real files, API, assets)
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # SPA: send all other requests to index.html
+  RewriteRule ^ index.html [L]
+</IfModule>

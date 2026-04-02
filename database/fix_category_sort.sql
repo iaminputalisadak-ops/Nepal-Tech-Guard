@@ -1,0 +1,31 @@
+-- Fix category sort order: unique sequential 1, 2, 3, 4...
+USE nepal_techguard;
+
+UPDATE categories SET sort_order = 1 WHERE name = 'Windows';
+UPDATE categories SET sort_order = 2 WHERE name = 'Windows Enterprise';
+UPDATE categories SET sort_order = 3 WHERE name = 'Microsoft 365 / Office 365';
+UPDATE categories SET sort_order = 4 WHERE name = 'Office 2024';
+UPDATE categories SET sort_order = 5 WHERE name = 'Office 2021';
+UPDATE categories SET sort_order = 6 WHERE name = 'Office 2019';
+UPDATE categories SET sort_order = 7 WHERE name = 'Office 2016 / 2013 / 2010';
+UPDATE categories SET sort_order = 8 WHERE name = 'Project';
+UPDATE categories SET sort_order = 9 WHERE name = 'Visio';
+UPDATE categories SET sort_order = 10 WHERE name = 'Access';
+UPDATE categories SET sort_order = 11 WHERE name = 'Server & SQL';
+UPDATE categories SET sort_order = 12 WHERE name = 'VMware & Virtualization';
+UPDATE categories SET sort_order = 13 WHERE name = 'Power BI';
+UPDATE categories SET sort_order = 14 WHERE name = 'Cloud Storage';
+UPDATE categories SET sort_order = 15 WHERE name = 'Design & Architecture Software';
+UPDATE categories SET sort_order = 16 WHERE name = 'Adobe Products';
+UPDATE categories SET sort_order = 17 WHERE name = 'CorelDRAW';
+UPDATE categories SET sort_order = 18 WHERE name = 'Antivirus & Security';
+UPDATE categories SET sort_order = 19 WHERE name = 'Streaming & Subscriptions';
+UPDATE categories SET sort_order = 20 WHERE name = 'Utility Software';
+UPDATE categories SET sort_order = 21 WHERE name = 'Accounting Software';
+UPDATE categories SET sort_order = 22 WHERE name = 'Creative & Video Tools';
+UPDATE categories SET sort_order = 23 WHERE name = 'AI / Others';
+UPDATE categories SET sort_order = 24 WHERE name = 'Installation Services';
+UPDATE categories SET sort_order = 25 WHERE name = 'MS Office';
+UPDATE categories SET sort_order = 26 WHERE name = 'Antivirus';
+UPDATE categories SET sort_order = 27 WHERE name = 'Design & Editing';
+UPDATE categories SET sort_order = 28 WHERE name = 'sdssss';
