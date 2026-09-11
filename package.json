@@ -10,7 +10,9 @@
     "admin:password": "C:\\xampp\\php\\php.exe scripts/set-admin-password.php",
     "build:xampp": "cd frontend && npm run build -- --mode xampp",
     "deploy:xampp": "npm run build:xampp && node scripts/deploy-xampp.js",
-    "build:cpanel": "cd frontend && npm run build -- --mode cpanel"
+    "build:cpanel": "cd frontend && npm run build -- --mode cpanel",
+    "deploy:cpanel": "node scripts/deploy-cpanel.js",
+    "deploy:cpanel:zip": "node scripts/deploy-cpanel.js --zip-only --zip"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

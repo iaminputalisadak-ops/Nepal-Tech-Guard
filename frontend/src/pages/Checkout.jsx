@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { orders } from '../api';
+import SEO from '../components/SEO';
 
 const sectionStyle = { padding: '2rem 1.5rem', maxWidth: 600, margin: '0 auto' };
 
@@ -76,6 +77,7 @@ export default function Checkout() {
 
   return (
     <section className="page-section" style={sectionStyle}>
+      <SEO title="Checkout" description="Checkout - Nepal TechGuard" canonicalPath="/checkout" noindex />
       <h1 style={{ fontFamily: 'var(--font-head)', marginBottom: '1.5rem' }}>Checkout</h1>
       <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Total: ₹{totalAmount.toFixed(2)}</p>
       {error && <p style={{ color: 'var(--danger)', marginBottom: '1rem' }}>{error}</p>}

@@ -1,0 +1,18 @@
+{
+  "name": "Hedztech Shop Live",
+  "siteUrl": "https://shop.hedztech.com/",
+  "protocol": "ftp",
+  "host": "shop.hedztech.com",
+  "port": 21,
+  "secure": true,
+  "username": "YOUR_FTP_USERNAME",
+  "password": "YOUR_FTP_PASSWORD",
+  "remotePath": "/",
+  "notes": [
+    "Copy this file to deploy/ftp-config.json and fill in username + password.",
+    "Get FTP details in cPanel → FTP Accounts.",
+    "If shop.hedztech.com does not resolve, use the origin IP: 36.253.137.4",
+    "DNS is on Cloudflare. Add an A record for shop pointing to 36.253.137.4.",
+    "FTP user is jailed to the shop document root, so remotePath is /"
+  ]
+}

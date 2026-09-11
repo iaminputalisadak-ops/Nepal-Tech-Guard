@@ -37,7 +37,11 @@ export const products = {
     const q = new URLSearchParams(params).toString();
     return api.get(`products/index.php${q ? `?${q}` : ''}`);
   },
-  get: (id) => api.get(`products/single.php?id=${id}`),
+  get: (idOrSlug) => {
+    const isNum = /^\d+$/.test(String(idOrSlug));
+    const param = isNum ? `id=${encodeURIComponent(idOrSlug)}` : `slug=${encodeURIComponent(idOrSlug)}`;
+    return api.get(`products/single.php?${param}`);
+  },
 };
 
 export const categories = {

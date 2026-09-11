@@ -19,6 +19,7 @@ import AdminOrders from './admin/AdminOrders';
 import AdminBlog from './admin/AdminBlog';
 import AdminBlogEditor from './admin/AdminBlogEditor';
 import ContentPage from './pages/ContentPage';
+import FAQPage from './pages/FAQ';
 import BlogIndex from './pages/BlogIndex';
 import BlogPost from './pages/BlogPost';
 
@@ -34,7 +35,7 @@ export default function App() {
       <Route path="/" element={<StoreLayout />}>
         <Route index element={<Home />} />
         <Route path="category/:slug" element={<Category />} />
-        <Route path="product/:id" element={<Product />} />
+        <Route path="product/:id/:slug?" element={<Product />} />
         <Route path="cart" element={<Cart />} />
         <Route path="checkout" element={<Checkout />} />
         <Route path="payment/:orderNumber" element={<SecurePayment />} />
@@ -43,7 +44,8 @@ export default function App() {
         <Route path="terms" element={<ContentPage slug="terms" />} />
         <Route path="disclaimer" element={<ContentPage slug="disclaimer" />} />
         <Route path="about" element={<ContentPage slug="about" />} />
-        <Route path="contact" element={<ContentPage slug="contact" />} />
+         <Route path="contact" element={<ContentPage slug="contact" />} />
+         <Route path="faq" element={<FAQPage />} />
         <Route path="blog" element={<BlogIndex />} />
         <Route path="blog/:slug" element={<BlogPost />} />
       </Route>

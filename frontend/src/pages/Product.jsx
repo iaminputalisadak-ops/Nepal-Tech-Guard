@@ -12,7 +12,7 @@ const WhatsAppIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill=
 const CartIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>;
 
 export default function Product() {
-  const { id } = useParams();
+  const { id, slug } = useParams();
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,9 +23,22 @@ export default function Product() {
 
   useEffect(() => {
     products.get(id).then((r) => {
-      setProduct(r.data);
-      if (r.data?.variants?.length) setSelectedVariant(r.data.variants[0]);
-      return products.list({ category_id: r.data?.category_id, limit: 8 });
+      const fetched = r.data;
+      setProduct(fetched);
+      if (fetched?.variants?.length) setSelectedVariant(fetched.variants[0]);
+
+      // Canonicalize slug: if URL slug mismatches product slug, redirect to canonical URL
+      const canonicalSlug = fetched?.slug;
+      const productId = fetched?.id;
+      if (productId && canonicalSlug) {
+        const isNumericId = /^\d+$/.test(String(id));
+        const urlSlug = slug || '';
+        if (isNumericId && urlSlug !== canonicalSlug) {
+          navigate(`/product/${productId}/${canonicalSlug}`, { replace: true });
+        }
+      }
+
+      return products.list({ category_id: fetched?.category_id, limit: 8 });
     }).then((r) => {
       setRelated((r?.data || []).filter((p) => p.id !== parseInt(id, 10)));
     }).catch(() => {}).finally(() => setLoading(false));
@@ -54,7 +67,8 @@ export default function Product() {
     navigate('/checkout');
   };
 
-  const canonicalPath = `/product/${id}`;
+  const BASE_URL = typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') : '';
+  const canonicalPath = product.slug ? `/product/${product.id}/${product.slug}` : `/product/${product.id}`;
   const productDescription = product.short_description || product.description || `Buy ${product.name} in Nepal. Genuine license key, instant delivery via WhatsApp, SMS & Email.`;
   const productJsonLd = {
     '@context': 'https://schema.org',
@@ -62,21 +76,48 @@ export default function Product() {
     name: product.name,
     description: productDescription,
     image: product.image_url || undefined,
-    sku: product.id?.toString(),
+    sku: product.sku || product.id?.toString(),
+    category: product.category_name || undefined,
+    brand: product.brand_name ? { '@type': 'Brand', name: product.brand_name } : undefined,
     offers: {
       '@type': 'Offer',
-      price: price,
+      price: String(price),
       priceCurrency: 'NPR',
-      availability: 'https://schema.org/InStock',
+      availability: Number(price) > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       url: typeof window !== 'undefined' ? window.location.href : '',
+      seller: { '@type': 'Organization', name: 'Nepal TechGuard' },
     },
-    brand: product.brand_name ? { '@type': 'Brand', name: product.brand_name } : undefined,
     aggregateRating: (product.rating > 0 && product.review_count > 0) ? {
       '@type': 'AggregateRating',
-      ratingValue: product.rating,
+      ratingValue: String(product.rating),
       reviewCount: product.review_count,
     } : undefined,
   };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${BASE_URL}/` },
+      { '@type': 'ListItem', position: 2, name: 'Products', item: `${BASE_URL}/` },
+      { '@type': 'ListItem', position: 3, name: product.name, item: `${BASE_URL}${canonicalPath}` },
+    ],
+  };
+
+const productFaqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      { '@type': 'Question', name: 'Is this a genuine license key?', acceptedAnswer: { '@type': 'Answer', text: 'Yes, all keys sold by Nepal TechGuard are genuine and verified for online activation.' } },
+      { '@type': 'Question', name: 'How do I receive the key?', acceptedAnswer: { '@type': 'Answer', text: 'After purchase, the license key is delivered instantly via WhatsApp, SMS, and email within 60 seconds.' } },
+      { '@type': 'Question', name: 'Can I transfer this license?', acceptedAnswer: { '@type': 'Answer', text: 'This depends on the license type (Retail vs OEM). Check the product details or contact us for clarification.' } },
+      { '@type': 'Question', name: 'Do I get a refund if the key does not work?', acceptedAnswer: { '@type': 'Answer', text: 'We offer a money-back guarantee if the key cannot be activated. Contact our support within 7 days of purchase.' } },
+    ],
+  };
+
+  const combinedJsonLd = [productJsonLd, breadcrumbJsonLd, productFaqJsonLd];
+
+  const productUrl = (p) => p.slug ? `/product/${p.id}/${p.slug}` : `/product/${p.id}`;
 
   return (
     <div className="product-page">
@@ -86,10 +127,10 @@ export default function Product() {
         image={product.image_url}
         canonicalPath={canonicalPath}
         type="product"
-        jsonLd={productJsonLd}
+        jsonLd={combinedJsonLd}
       />
       {/* Breadcrumbs */}
-      <nav className="product-breadcrumb">
+      <nav className="product-breadcrumb" aria-label="Breadcrumb">
         <Link to="/">Home</Link>
         <span className="product-breadcrumb-sep">&gt;</span>
         <span>Product Detail</span>
@@ -188,7 +229,7 @@ export default function Product() {
           </h2>
           <div className="product-related-grid">
             {related.slice(0, 4).map((p) => (
-              <Link key={p.id} to={`/product/${p.id}`} className="product-related-card">
+              <Link key={p.id} to={productUrl(p)} className="product-related-card">
                 {p.image_url ? <img src={p.image_url} alt="" /> : <div className="product-related-placeholder" />}
                 <span className="product-related-brand">{p.brand_name || p.category_name}</span>
                 <h3>{p.name}</h3>

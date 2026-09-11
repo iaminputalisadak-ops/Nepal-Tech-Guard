@@ -26,8 +26,8 @@ if (strpos($uri, '/uploads/') === 0) {
     }
 }
 
-if (strpos($uri, '/api/') === 0) {
-    $file = __DIR__ . $uri;
+if (strpos($uri, '/api/') === 0 || strpos($uri, '/backend/api/') === 0) {
+    $file = __DIR__ . (strpos($uri, '/backend/') === 0 ? substr($uri, strlen('/backend')) : $uri);
     if (is_file($file) && pathinfo($file, PATHINFO_EXTENSION) === 'php') {
         require $file;
         return true;

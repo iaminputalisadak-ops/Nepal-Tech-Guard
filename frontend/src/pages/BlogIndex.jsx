@@ -35,6 +35,14 @@ export default function BlogIndex() {
         description="Guides and updates about software licensing, Windows, MS Office, antivirus, and buying tips in Nepal."
         canonicalPath="/blog"
         type="website"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') + '/' : '' },
+            { '@type': 'ListItem', position: 2, name: 'Blog', item: typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') + '/blog' : '' },
+          ],
+        }}
       />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap', marginBottom: '1.25rem' }}>

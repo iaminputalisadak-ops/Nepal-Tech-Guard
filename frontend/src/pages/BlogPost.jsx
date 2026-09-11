@@ -84,7 +84,15 @@ export default function BlogPost() {
         image={post.coverImage}
         canonicalPath={canonicalPath}
         type="article"
-        jsonLd={jsonLd}
+        jsonLd={[jsonLd, {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') + '/' : '' },
+            { '@type': 'ListItem', position: 2, name: 'Blog', item: typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') + '/blog' : '' },
+            { '@type': 'ListItem', position: 3, name: post.rawTitle || post.title, item: typeof window !== 'undefined' ? window.location.href : '' },
+          ],
+        }]}
       />
 
       <Link to="/blog" style={{ display: 'inline-block', marginBottom: 14, fontSize: 14, color: 'var(--text-muted)' }}>

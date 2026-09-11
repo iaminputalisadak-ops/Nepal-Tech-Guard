@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import SEO from '../components/SEO';
 
 const sectionStyle = { padding: '2rem 1.5rem', maxWidth: 800, margin: '0 auto' };
 
@@ -19,6 +20,7 @@ export default function Cart() {
 
   return (
     <section className="page-section" style={sectionStyle}>
+      <SEO title="Your Cart" description="Shopping cart - Nepal TechGuard" canonicalPath="/cart" noindex />
       <h1 style={{ fontFamily: 'var(--font-head)', marginBottom: '1.5rem' }}>Your cart ({totalItems} items)</h1>
       <div className="card cart-table-wrap" style={{ marginBottom: '1.5rem' }}>
         <div className="table-wrap">

@@ -172,14 +172,38 @@ export default function Home() {
         title="Genuine Software & License Keys in Nepal"
         description={DEFAULT_DESC}
         canonicalPath="/"
-        jsonLd={{
-          '@context': 'https://schema.org',
-          '@type': 'Organization',
-          name: 'Nepal TechGuard',
-          description: DEFAULT_DESC,
-          url: typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') : '',
-          areaServed: { '@type': 'Country', name: 'Nepal' },
-        }}
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Nepal TechGuard',
+            url: typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') : '',
+            potentialAction: [
+              {
+                '@type': 'SearchAction',
+                target: typeof window !== 'undefined' ? `${window.location.origin}${(import.meta.env.BASE_URL || '/').replace(/\/$/, '')}/?search={search_term_string}` : '',
+                'query-input': 'required name=search_term_string',
+              },
+            ],
+            inLanguage: 'en-NP',
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Nepal TechGuard',
+            url: typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') : '',
+            description: DEFAULT_DESC,
+            areaServed: { '@type': 'Country', name: 'Nepal' },
+            contactPoint: [{
+              '@type': 'ContactPoint',
+              telephone: '+977-9800000000',
+              email: 'support@nepaltechguard.com',
+              contactType: 'customer service',
+              areaServed: 'NP',
+              availableLanguage: ['English', 'Nepali'],
+            }],
+          },
+        ]}
       />
       {/* Hero – full viewport with 3D background */}
       <section className="home-hero">
@@ -275,6 +299,29 @@ export default function Home() {
             <span className="home-stat-value"><AnimatedCounter value="24" suffix={'/7'} /></span>
             <span className="home-stat-label">Support</span>
           </div>
+        </div>
+      </motion.section>
+
+      {/* Trust / benefit content section for SEO */}
+      <motion.section
+        className={sectionClassName}
+        style={sectionStyle}
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-80px' }}
+        transition={{ duration: 0.6 }}
+      >
+        <div style={{ maxWidth: 800, margin: '0 auto 2rem' }}>
+          <h2 style={{ fontFamily: 'var(--font-head)', fontSize: '1.3rem', fontWeight: 700, marginBottom: '1rem', textAlign: 'center' }}>Genuine Software, Instant Delivery in Nepal</h2>
+          <p style={{ lineHeight: 1.7, marginBottom: '1rem' }}>
+            Nepal TechGuard is your trusted source for genuine Windows, MS Office, Antivirus, and Adobe license keys. We deliver instantly via WhatsApp, SMS, and email within 60 seconds of purchase. Every key comes with a satisfaction guarantee and local support.
+          </p>
+          <p style={{ lineHeight: 1.7, marginBottom: '1rem' }}>
+            Whether you need a Windows 11 Pro license, Office 2024 Professional Plus, or Quick Heal antivirus protection, we offer genuine product keys at competitive prices across Nepal. Our instant delivery means you get your activation key the same minute — no waiting for physical shipment.
+          </p>
+          <p style={{ lineHeight: 1.7 }}>
+            We also help with <Link to="/blog">software licensing guides, activation troubleshooting, and security best practices</Link> so you can make confident purchasing decisions. Browse by category below to find the perfect license for your Windows PC, Mac, or mobile device.
+          </p>
         </div>
       </motion.section>
 
@@ -413,9 +460,9 @@ function ProductCard({ product }) {
         style={{ ...cardStyle, cursor: 'pointer', position: 'relative' }}
         whileHover={{ boxShadow: '0 16px 40px rgba(59, 130, 246, 0.15)' }}
         transition={{ duration: 0.3 }}
-        onClick={() => navigate(`/product/${product.id}`)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${product.id}`);
+         onClick={() => navigate(product.slug ? `/product/${product.id}/${product.slug}` : `/product/${product.id}`)}
+         onKeyDown={(e) => {
+           if (e.key === 'Enter' || e.key === ' ') navigate(product.slug ? `/product/${product.id}/${product.slug}` : `/product/${product.id}`);
         }}
       >
           {product.image_url && (

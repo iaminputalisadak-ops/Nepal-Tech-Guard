@@ -22,9 +22,23 @@ export default function ContentPage({ slug }) {
   const pageTitle = page?.title || slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   const pageDescription = (page?.content || '').replace(/\s+/g, ' ').trim().slice(0, 160) || `${pageTitle} - Nepal TechGuard`;
 
+  const BASE_URL = typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') : '';
+
   return (
     <section className="page-section" style={{ padding: '2rem 1.5rem', maxWidth: 800, margin: '0 auto' }}>
-      <SEO title={pageTitle} description={pageDescription} canonicalPath={`/${slug}`} />
+      <SEO
+        title={pageTitle}
+        description={pageDescription}
+        canonicalPath={`/${slug}`}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: `${BASE_URL}/` },
+            { '@type': 'ListItem', position: 2, name: pageTitle, item: `${BASE_URL}/${slug}` },
+          ],
+        }}
+      />
       <Link to="/" style={{ display: 'inline-block', marginBottom: '1.5rem', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
         ← Back to home
       </Link>

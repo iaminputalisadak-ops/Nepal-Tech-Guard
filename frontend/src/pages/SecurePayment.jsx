@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { orders } from '../api';
 import { useSettings } from '../context/SettingsContext';
+import SEO from '../components/SEO';
 
 const sectionStyle = { padding: '2rem 1.5rem', maxWidth: 600, margin: '0 auto' };
 
@@ -115,7 +116,7 @@ export default function SecurePayment() {
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
           <Link to="/" className="btn btn-primary" style={{ flex: '1 1 220px', justifyContent: 'center' }}>Back to Home</Link>
           {primaryProductId ? (
-            <Link to={`/product/${primaryProductId}`} className="btn btn-secondary" style={{ flex: '1 1 220px', justifyContent: 'center' }}>
+            <Link to={primaryProductId ? `/product/${primaryProductId}` : '/'} className="btn btn-secondary" style={{ flex: '1 1 220px', justifyContent: 'center' }}>
               View Product
             </Link>
           ) : null}
@@ -126,6 +127,7 @@ export default function SecurePayment() {
 
   return (
     <section className="page-section" style={sectionStyle}>
+      <SEO title="Secure Payment" description="Secure payment page - Nepal TechGuard" canonicalPath={`/payment/${orderNumber}`} noindex />
       <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>Secure Payment</div>
         <h1 style={{ fontFamily: 'var(--font-head)', fontSize: '1.75rem' }}>Complete your purchase securely</h1>

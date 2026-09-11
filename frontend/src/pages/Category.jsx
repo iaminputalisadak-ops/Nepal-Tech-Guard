@@ -46,6 +46,22 @@ export default function Category() {
 
   const categoryDesc = category.description || `Buy ${category.name} license keys in Nepal. Genuine software, instant delivery.`;
 
+  const BASE_URL = typeof window !== 'undefined' ? window.location.origin + (import.meta.env.BASE_URL || '/').replace(/\/$/, '') : '';
+  const canonicalPath = `/category/${category.slug}`;
+  const categoryItemList = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: category.name,
+    itemListElement: (list || []).map((p, idx) => ({
+      '@type': 'Product',
+      position: idx + 1,
+      name: p.name,
+      url: BASE_URL + (p.slug ? `/product/${p.id}/${p.slug}` : `/product/${p.id}`),
+      image: p.image_url || undefined,
+      offers: { '@type': 'Offer', price: String(p.variants?.[0]?.price ?? p.price_min ?? 0), priceCurrency: 'NPR' },
+    })),
+  };
+
   return (
     <motion.section
       className="page-section"
@@ -55,9 +71,18 @@ export default function Category() {
       transition={{ duration: 0.4 }}
     >
       <SEO
-        title={`${category.name} - License Keys`}
+        title={`${category.name} License Keys - Buy Online in Nepal`}
         description={categoryDesc}
-        canonicalPath={`/category/${category.slug}`}
+        canonicalPath={canonicalPath}
+        type="website"
+        jsonLd={[categoryItemList, {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: `${BASE_URL}/` },
+            { '@type': 'ListItem', position: 2, name: category.name, item: `${BASE_URL}${canonicalPath}` },
+          ],
+        }}]}
       />
       <motion.h1
         style={{ fontFamily: 'var(--font-head)', fontSize: '1.75rem', marginBottom: 8 }}
@@ -91,9 +116,9 @@ export default function Category() {
                 style={{ ...cardStyle, cursor: 'pointer', position: 'relative' }}
                 whileHover={{ boxShadow: '0 16px 40px rgba(59, 130, 246, 0.15)' }}
                 transition={{ duration: 0.3 }}
-                onClick={() => navigate(`/product/${p.id}`)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') navigate(`/product/${p.id}`);
+                 onClick={() => navigate(p.slug ? `/product/${p.id}/${p.slug}` : `/product/${p.id}`)}
+                 onKeyDown={(e) => {
+                   if (e.key === 'Enter' || e.key === ' ') navigate(p.slug ? `/product/${p.id}/${p.slug}` : `/product/${p.id}`);
                 }}
               >
                   {p.image_url && <img src={p.image_url} alt="" style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 8, marginBottom: 12 }} />}

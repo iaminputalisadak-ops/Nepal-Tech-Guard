@@ -12,6 +12,11 @@ build/
 .env.local
 .env.*.local
 
+# FTP credentials (never commit passwords)
+deploy/ftp-config.json
+deploy/filezilla-nepal-techguard.xml
+**/sftp.json
+
 # IDE
 .idea/
 .vscode/
