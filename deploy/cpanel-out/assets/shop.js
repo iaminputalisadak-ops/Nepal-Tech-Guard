@@ -135,21 +135,34 @@ async function api(path, opts) {
   const res = await fetch(API + path, opts);
   return res.json().catch(() => ({}));
 }
+function toggleNav(btn) {
+  const nav = document.getElementById("mainNav");
+  if (!nav) return;
+  const open = nav.classList.toggle("is-open");
+  if (btn) {
+    btn.classList.toggle("is-open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  }
+}
 function header() {
   const n = cart().reduce((s, i) => s + i.quantity, 0);
   return `
-  <div class="topbar"><div class="wrap topbar">
+  <div class="topbar"><div class="wrap topbar-inner">
     <a class="brand" href="/" title="Nepal TechGuard home"><span><b>NEPAL</b><b class="blue">TECH</b><b>GUARD</b></span></a>
+    <div class="topbar-actions">
+      <a class="btn btn-ghost admin-link" href="/admin">Admin</a>
+      <a class="btn btn-blue cart-btn" href="/cart">Cart <span id="cartCount">${n}</span></a>
+      <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="mainNav" onclick="toggleNav(this)">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
     <form class="search" role="search" onsubmit="event.preventDefault(); go('/search?q='+encodeURIComponent(document.getElementById('q').value))">
       <input id="q" name="q" placeholder="Search Windows, Office, Adobe..." value="${(route().q || "").replace(/"/g, "&quot;")}">
       <button type="submit">Search</button>
     </form>
-    <div>
-      <a class="btn btn-ghost" href="/admin">Admin</a>
-      <a class="btn btn-blue" href="/cart">Cart <span id="cartCount">${n}</span></a>
-    </div>
   </div></div>
-  <nav class="navbar" aria-label="Main"><div class="wrap navbar">
+  <nav class="navbar" id="mainNav" aria-label="Main"><div class="wrap">
     <div class="nav-links">
       <a href="/">Home</a>
       <a href="/category/windows">Windows</a>
@@ -157,6 +170,7 @@ function header() {
       <a href="/category/antivirus">Antivirus</a>
       <a href="/category/adobe-products">Adobe</a>
       <a href="/blog">Blog</a>
+      <a class="admin-in-nav" href="/admin">Admin</a>
     </div>
   </div></nav>`;
 }
@@ -306,11 +320,13 @@ async function pageProduct() {
         <img src="${img}" alt="${String(p.name).replace(/</g, "")} license key" onerror="this.src='${FALLBACK}'">
         <div>
           <p class="muted">${p.category_name || ""}</p>
-          <h1 style="font-family:Outfit,sans-serif;font-size:2rem;margin:.4rem 0 1rem">${p.name}</h1>
+          <h1>${p.name}</h1>
           <div class="price" style="font-size:1.4rem">${money(price)}</div>
           <p class="muted" style="margin:1rem 0">${(p.short_description || p.description || "Genuine license key with instant delivery in Nepal.").replace(/\?{2,}/g, "-")}</p>
-          <button class="btn btn-blue" onclick="addToCart(window.__p, false)">Add to cart</button>
-          <button class="btn btn-ghost" onclick="addToCart(window.__p, true)">Buy now</button>
+          <div class="product-actions">
+            <button class="btn btn-blue" onclick="addToCart(window.__p, false)">Add to cart</button>
+            <button class="btn btn-ghost" onclick="addToCart(window.__p, true)">Buy now</button>
+          </div>
         </div>
       </div>
     </section>` + footer();
@@ -478,21 +494,21 @@ async function pageAdmin() {
       <h1>Admin · upload images</h1>
       <p class="muted" style="margin-bottom:1rem">Upload a unique photo for any product. Until you upload one, each product shows a generated cover with its name.</p>
       <h2 style="margin:1rem 0 .6rem">Categories</h2>
-      <table class="admin-table"><thead><tr><th>Image</th><th>Name</th><th>Upload</th></tr></thead><tbody>
+      <div class="table-scroll"><table class="admin-table"><thead><tr><th>Image</th><th>Name</th><th>Upload</th></tr></thead><tbody>
         ${categories.map((c) => `<tr>
           <td><img src="${imgSrc(c.image_url, c.slug, c.name)}" alt="${c.name}" onerror="this.src='${FALLBACK}'"></td>
           <td>${c.name}</td>
           <td><input type="file" accept="image/*" onchange="window.__upload('category', ${c.id}, this)"></td>
         </tr>`).join("")}
-      </tbody></table>
+      </tbody></table></div>
       <h2 style="margin:1.4rem 0 .6rem">Products</h2>
-      <table class="admin-table"><thead><tr><th>Image</th><th>Product</th><th>Upload</th></tr></thead><tbody>
+      <div class="table-scroll"><table class="admin-table"><thead><tr><th>Image</th><th>Product</th><th>Upload</th></tr></thead><tbody>
         ${products.map((p) => `<tr>
           <td><img src="${imgSrc(p.image_url, p.category_slug, p.name)}" alt="${p.name}" onerror="this.src='${FALLBACK}'"></td>
           <td>${p.name}<div class="muted">${money(p.price_min)}</div></td>
           <td><input type="file" accept="image/*" onchange="window.__upload('product', ${p.id}, this)"></td>
         </tr>`).join("")}
-      </tbody></table>
+      </tbody></table></div>
     </section>` + footer();
 }
 
