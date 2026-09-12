@@ -17,6 +17,9 @@ Options -Indexes
   RewriteEngine On
   RewriteBase /
 
+  RewriteCond %{HTTP_HOST} ^www\.shop\.hedztech\.com$ [NC]
+  RewriteRule ^(.*)$ https://shop.hedztech.com/$1 [R=301,L]
+
   RewriteCond %{HTTP:Authorization} .
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 

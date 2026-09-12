@@ -48,6 +48,20 @@ $categories = [];
 $products = [];
 $product = null;
 $category = null;
+$blogPosts = [];
+$blogPost = null;
+$blogFile = __DIR__ . '/assets/blog-posts.json';
+if (is_file($blogFile)) {
+    $blogPosts = json_decode((string) file_get_contents($blogFile), true) ?: [];
+}
+if ($page === 'blog' && $slug !== '') {
+    foreach ($blogPosts as $bp) {
+        if (($bp['slug'] ?? '') === $slug) {
+            $blogPost = $bp;
+            break;
+        }
+    }
+}
 if ($pdo) {
     try {
         $categories = $pdo->query("SELECT id, name, slug, description FROM categories WHERE slug != 'assasassas' ORDER BY sort_order ASC, name ASC")->fetchAll();
@@ -75,7 +89,7 @@ if ($pdo) {
                 $st->execute([(int) $category['id']]);
                 $products = $st->fetchAll();
             }
-        } else {
+        } elseif ($page !== 'blog') {
             $products = $pdo->query('SELECT p.*, c.slug AS category_slug FROM products p JOIN categories c ON c.id = p.category_id WHERE p.is_active = 1 AND p.is_featured = 1 ORDER BY p.created_at DESC LIMIT 12')->fetchAll();
         }
     } catch (Throwable $e) {}
@@ -104,6 +118,17 @@ if ($page === 'category' && $category) {
     $canon = $base . '/product/' . rawurlencode((string) ($product['slug'] ?: $product['id']));
     $ogType = 'product';
     $ogImage = $base . '/backend/cover.php?title=' . rawurlencode($product['name']) . '&slug=' . rawurlencode((string) ($product['category_slug'] ?? ''));
+} elseif ($page === 'blog' && $blogPost) {
+    $title = $blogPost['title'] . ' | Nepal TechGuard';
+    $desc = plain($blogPost['description'] ?? $blogPost['title'], 160);
+    $canon = $base . '/blog/' . rawurlencode($blogPost['slug']);
+    $ogType = 'article';
+    $cover = (string) ($blogPost['cover'] ?? '/uploads/cat-windows.jpg');
+    $ogImage = (strpos($cover, 'http') === 0) ? $cover : $base . $cover;
+} elseif ($page === 'blog') {
+    $title = 'Blog | Software Licensing Guides in Nepal | Nepal TechGuard';
+    $desc = 'Guides on Windows 11 Pro keys, Office 2024 vs Microsoft 365, antivirus, and buying genuine software in Nepal.';
+    $canon = $base . '/blog';
 } elseif ($noindex) {
     $title = ucfirst($page) . ' | Nepal TechGuard';
     $desc = 'Nepal TechGuard shop.';
@@ -189,6 +214,45 @@ if ($page === 'product' && $product) {
         'url' => $canon,
         'mainEntity' => ['@type' => 'ItemList', 'itemListElement' => $items],
     ];
+} elseif ($page === 'blog' && $blogPost) {
+    $jsonLd[] = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => $base . '/'],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog', 'item' => $base . '/blog'],
+            ['@type' => 'ListItem', 'position' => 3, 'name' => $blogPost['title'], 'item' => $canon],
+        ],
+    ];
+    $jsonLd[] = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Article',
+        'headline' => $blogPost['title'],
+        'description' => $desc,
+        'image' => [$ogImage],
+        'author' => ['@type' => 'Organization', 'name' => 'Nepal TechGuard'],
+        'publisher' => ['@type' => 'Organization', 'name' => 'Nepal TechGuard'],
+        'datePublished' => $blogPost['publishedAt'] ?? $today ?? date('Y-m-d'),
+        'dateModified' => $blogPost['publishedAt'] ?? date('Y-m-d'),
+        'mainEntityOfPage' => $canon,
+    ];
+} elseif ($page === 'blog') {
+    $items = [];
+    foreach ($blogPosts as $i => $bp) {
+        $items[] = [
+            '@type' => 'ListItem',
+            'position' => $i + 1,
+            'url' => $base . '/blog/' . rawurlencode($bp['slug']),
+            'name' => $bp['title'],
+        ];
+    }
+    $jsonLd[] = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Blog',
+        'name' => 'Nepal TechGuard Blog',
+        'url' => $canon,
+        'blogPost' => $items,
+    ];
 }
 
 header('Content-Type: text/html; charset=utf-8');
@@ -217,7 +281,7 @@ header('Content-Type: text/html; charset=utf-8');
     <meta name="twitter:title" content="<?php echo h($title); ?>" />
     <meta name="twitter:description" content="<?php echo h($desc); ?>" />
     <meta name="twitter:image" content="<?php echo h($ogImage); ?>" />
-    <link rel="stylesheet" href="/assets/shop.css" />
+    <link rel="stylesheet" href="/assets/shop.css?v=blog2" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap" rel="stylesheet" />
     <?php foreach ($jsonLd as $block): ?>
@@ -235,6 +299,7 @@ header('Content-Type: text/html; charset=utf-8');
           <a href="/category/ms-office">MS Office license Nepal</a>
           <a href="/category/antivirus">Antivirus Nepal</a>
           <a href="/category/adobe-products">Adobe keys</a>
+          <a href="/blog">Blog</a>
         </nav>
       </div></header>
 <?php if ($product): ?>
@@ -252,6 +317,23 @@ header('Content-Type: text/html; charset=utf-8');
         <ul>
           <?php foreach ($products as $p): ?>
           <li><a href="/product/<?php echo h($p['slug'] ?: $p['id']); ?>"><?php echo h($p['name']); ?></a> — <?php echo money_npr($p['price_min']); ?></li>
+          <?php endforeach; ?>
+        </ul>
+      </section>
+<?php elseif ($blogPost): ?>
+      <article class="section wrap article">
+        <p><a href="/">Home</a> / <a href="/blog">Blog</a></p>
+        <h1><?php echo h($blogPost['title']); ?></h1>
+        <p><?php echo h($blogPost['description']); ?></p>
+        <?php echo $blogPost['html']; ?>
+      </article>
+<?php elseif ($page === 'blog'): ?>
+      <section class="section wrap">
+        <h1>Nepal TechGuard blog</h1>
+        <p>Guides on Windows, Office, antivirus, and buying genuine software in Nepal.</p>
+        <ul>
+          <?php foreach ($blogPosts as $bp): ?>
+          <li><a href="/blog/<?php echo h($bp['slug']); ?>"><?php echo h($bp['title']); ?></a></li>
           <?php endforeach; ?>
         </ul>
       </section>
@@ -278,6 +360,6 @@ header('Content-Type: text/html; charset=utf-8');
       </section>
 <?php endif; ?>
     </main>
-    <script src="/assets/shop.js"></script>
+    <script src="/assets/shop.js?v=blog2"></script>
   </body>
 </html>

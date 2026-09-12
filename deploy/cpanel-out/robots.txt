@@ -7,6 +7,7 @@ Allow: /uploads/
 Allow: /assets/
 Allow: /category/
 Allow: /product/
+Allow: /blog/
 
 Disallow: /admin
 Disallow: /backend/admin
@@ -15,3 +16,4 @@ Disallow: /checkout
 Disallow: /_import/
 
 Sitemap: https://shop.hedztech.com/sitemap.xml
+Sitemap: https://shop.hedztech.com/backend/api/sitemap.php

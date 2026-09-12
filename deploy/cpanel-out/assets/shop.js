@@ -41,6 +41,7 @@ function route() {
   if (parts[0] === "category") return { page: "category", slug: decodeURIComponent(parts[1] || qs("slug") || "") };
   if (parts[0] === "product") return { page: "product", id: parts[1] || qs("id"), slug: decodeURIComponent(parts[1] || qs("slug") || "") };
   if (parts[0] === "search") return { page: "search", q: qs("q") || "" };
+  if (parts[0] === "blog") return { page: "blog", slug: decodeURIComponent(parts[1] || "") };
   if (["cart", "checkout", "admin"].includes(parts[0])) return { page: parts[0] };
   return { page: qs("page") || "home", slug: qs("slug"), id: qs("id"), q: qs("q") };
 }
@@ -155,13 +156,14 @@ function header() {
       <a href="/category/ms-office">MS Office</a>
       <a href="/category/antivirus">Antivirus</a>
       <a href="/category/adobe-products">Adobe</a>
+      <a href="/blog">Blog</a>
     </div>
   </div></nav>`;
 }
 function footer() {
   return `<footer><div class="wrap">
     <p>© ${new Date().getFullYear()} Nepal TechGuard · Genuine Windows, Office and antivirus keys in Nepal</p>
-    <p class="muted">Kathmandu, Nepal · Instant license delivery</p>
+    <p class="muted"><a href="/blog">Blog</a> · Kathmandu, Nepal · Instant license delivery</p>
   </div></footer>`;
 }
 window.__products = window.__products || {};
@@ -363,6 +365,75 @@ function pageCheckout() {
     </section>` + footer();
 }
 
+let BLOG_CACHE = null;
+async function loadBlog() {
+  if (BLOG_CACHE) return BLOG_CACHE;
+  const res = await fetch("/assets/blog-posts.json?v=md2");
+  BLOG_CACHE = (await res.json()).sort((a, b) => String(b.publishedAt || "").localeCompare(String(a.publishedAt || "")));
+  return BLOG_CACHE;
+}
+function esc(s) {
+  return String(s || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+async function pageBlog() {
+  const posts = await loadBlog();
+  const slug = route().slug;
+  if (slug) {
+    const post = posts.find((p) => p.slug === slug);
+    if (!post) {
+      setSeo({ title: "Article not found", noindex: true });
+      document.getElementById("app").innerHTML = header() + "<section class='section wrap'><h1>Article not found</h1><p><a href='/blog'>Back to blog</a></p></section>" + footer();
+      return;
+    }
+    const img = post.cover && post.cover.startsWith("http") ? post.cover : location.origin + (post.cover || "/uploads/cat-windows.jpg");
+    setSeo({
+      title: post.title,
+      description: post.description,
+      url: location.origin + "/blog/" + post.slug,
+      image: img,
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: post.title,
+        description: post.description,
+        image: [img],
+        datePublished: post.publishedAt,
+        author: { "@type": "Organization", name: "Nepal TechGuard" },
+        mainEntityOfPage: location.origin + "/blog/" + post.slug,
+      },
+    });
+    document.getElementById("app").innerHTML = header() + `
+      <article class="section wrap article">
+        <p class="muted"><a href="/">Home</a> / <a href="/blog">Blog</a></p>
+        <img class="article-cover" src="${esc(post.cover)}" alt="${esc(post.title)}">
+        <p class="muted" style="margin:.8rem 0">${esc(post.publishedAt)} · ${(post.tags || []).map(esc).join(" · ")}</p>
+        <h1 style="font-family:Outfit,sans-serif;font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.2;margin:0 0 1rem">${esc(post.title)}</h1>
+        <p class="muted" style="margin-bottom:1.2rem">${esc(post.description)}</p>
+        <div class="article-body">${post.html}</div>
+      </article>` + footer();
+    return;
+  }
+  setSeo({
+    title: "Blog | Software Licensing Guides in Nepal",
+    description: "Guides on Windows 11 Pro keys, Office 2024 vs Microsoft 365, antivirus, and buying genuine software in Nepal.",
+    url: location.origin + "/blog",
+  });
+  document.getElementById("app").innerHTML = header() + `
+    <section class="section wrap">
+      <h1 style="font-family:Outfit,sans-serif;margin-bottom:.4rem">Blog</h1>
+      <p class="muted" style="margin-bottom:1.2rem">Windows, Office, antivirus, and safe buying guides for Nepal.</p>
+      <div class="blog-grid">${posts.map((p) => `
+        <a class="card" href="/blog/${esc(p.slug)}">
+          <img src="${esc(p.cover)}" alt="${esc(p.title)}" width="400" height="220">
+          <div class="card-body">
+            <p class="muted" style="font-size:.8rem;margin-bottom:.4rem">${esc(p.publishedAt)} · ${esc((p.tags || [])[0] || "Guide")}</p>
+            <h3>${esc(p.title)}</h3>
+            <p class="muted" style="margin-top:.4rem">${esc(p.description)}</p>
+          </div>
+        </a>`).join("")}</div>
+    </section>` + footer();
+}
+
 async function pageAdmin() {
   setSeo({ title: "Admin", noindex: true, url: location.origin + "/admin" });
   const token = localStorage.getItem("admin_token");
@@ -426,5 +497,5 @@ async function pageAdmin() {
 }
 
 const r = route();
-const routes = { home: pageHome, category: pageCategory, search: pageSearch, product: pageProduct, cart: pageCart, checkout: pageCheckout, admin: pageAdmin };
+const routes = { home: pageHome, category: pageCategory, search: pageSearch, product: pageProduct, cart: pageCart, checkout: pageCheckout, admin: pageAdmin, blog: pageBlog };
 (routes[r.page] || pageHome)();

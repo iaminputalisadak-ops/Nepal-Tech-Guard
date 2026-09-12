@@ -17,17 +17,21 @@ Options -Indexes
   RewriteEngine On
   RewriteBase /
 
+  RewriteCond %{HTTP_HOST} ^www\.shop\.hedztech\.com$ [NC]
+  RewriteRule ^(.*)$ https://shop.hedztech.com/$1 [R=301,L]
+
   RewriteCond %{HTTP:Authorization} .
   RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-  RewriteRule ^sitemap\.xml$ sitemap.php [L]
-  RewriteRule ^sitemap\.php$ sitemap.php [L]
+  RewriteRule ^sitemap\.php$ /backend/sitemap.php [L]
+  RewriteCond %{DOCUMENT_ROOT}/sitemap.xml !-f
+  RewriteRule ^sitemap\.xml$ /backend/sitemap.php [L]
 
   RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^ - [L]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  RewriteRule ^(category|product|cart|checkout|admin|search)(/.*)?$ /index.php [L]
+  RewriteRule ^(category|product|cart|checkout|admin|search|blog)(/.*)?$ /index.php [L]
   RewriteRule ^ index.php [L]
 </IfModule>
