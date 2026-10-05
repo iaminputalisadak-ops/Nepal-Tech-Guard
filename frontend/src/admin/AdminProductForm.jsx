@@ -124,7 +124,34 @@ export default function AdminProductForm() {
 
   return (
     <>
-      <h1 style={{ fontFamily: 'var(--font-head)', fontSize: '1.5rem', marginBottom: '1.5rem' }}>{isEdit ? 'Edit product' : 'Add product'}</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h1 style={{ fontFamily: 'var(--font-head)', fontSize: '1.5rem', margin: 0 }}>{isEdit ? 'Edit product' : 'Add product'}</h1>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => {
+            if (!form.name) {
+              alert('Please enter a product name first.');
+              return;
+            }
+            const slug = form.slug || form.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            const autoImg = `https://shop.hedztech.com/backend/cover.php?title=${encodeURIComponent(form.name)}&slug=${encodeURIComponent(slug)}`;
+            const autoShort = `Buy genuine ${form.name} in Nepal with instant WhatsApp, SMS & Email delivery. Verified activation warranty.`;
+            const autoDesc = `${form.name} provides authentic, certified digital licensing for users and businesses across Nepal.\n\nKey Features & Benefits:\n- 100% Genuine and authentic activation.\n- Instant digital delivery directly via Email, WhatsApp, and SMS.\n- Lifetime validity or full-term subscription guarantee.\n- Dedicated customer support from Kathmandu for effortless installation.`;
+
+            setForm(prev => ({
+              ...prev,
+              slug,
+              image_url: prev.image_url || autoImg,
+              short_description: prev.short_description || autoShort,
+              description: prev.description || autoDesc,
+            }));
+            alert('AI SEO Content & Image path generated successfully!');
+          }}
+        >
+          ✨ Auto-Fill AI Image & SEO
+        </button>
+      </div>
       <form onSubmit={handleSubmit} className="card" style={{ padding: '1.5rem', maxWidth: 720 }}>
         <div className="form-group">
           <label>Category *</label>

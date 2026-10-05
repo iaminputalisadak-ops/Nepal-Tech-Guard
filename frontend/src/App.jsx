@@ -16,6 +16,7 @@ import AdminCategories from './admin/AdminCategories';
 import AdminSettings from './admin/AdminSettings';
 import AdminPages from './admin/AdminPages';
 import AdminOrders from './admin/AdminOrders';
+import AdminAiSeo from './admin/AdminAiSeo';
 import AdminBlog from './admin/AdminBlog';
 import AdminBlogEditor from './admin/AdminBlogEditor';
 import ContentPage from './pages/ContentPage';
@@ -63,6 +64,7 @@ export default function App() {
         <Route path="products" element={<AdminProducts />} />
         <Route path="products/new" element={<AdminProductForm />} />
         <Route path="products/edit/:id" element={<AdminProductForm />} />
+        <Route path="ai-seo" element={<AdminAiSeo />} />
         <Route path="categories" element={<AdminCategories />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="blog" element={<AdminBlog />} />
